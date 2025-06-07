@@ -1,12 +1,29 @@
+import axios from "axios";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Checkbox } from "react-native-paper";
 import GoogleLogo from "../../assets/Svg/GoogleLogo";
 
 export default function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
+  const [user, setUser] = useState({
+    username: "",
+    password: "",
+  });
   const router = useRouter();
+
+  const handleSignIn = async () => {
+    await axios.post("http://192.168.0.100:3000/api/users/login", user).then((res) => {
+      if (res.status === 200) { 
+        console.log("User logged in successfully:", res.data);
+        router.push("/");
+      }
+    }).catch((err) => {
+      console.error("Error logging in:", err.response ? err.response.data : err.message);
+    }); 
+  };
+
   return (
     <View className="flex-1 flex-col justify-center items-center bg-gray-800 relative overflow-hidden gap-1">
       {/* Background Circle */}
@@ -24,12 +41,14 @@ export default function SignIn() {
             className="w-full p-3 px-5 h-[50px] border border-gray-200 rounded-md focus:border-blue-500 focus:border-2"
             placeholder="Enter username or email"
             placeholderTextColor="#9CA3AF"
+            onChangeText={(text) => setUser({ ...user, username: text })}
           />
           <TextInput
             className="w-full p-3 px-5 h-[50px] border border-gray-200 rounded-md focus:border-blue-500 focus:border-2"
             placeholder="Enter password"
             secureTextEntry
             placeholderTextColor="#9CA3AF"
+            onChangeText={(text) => setUser({ ...user, password: text })}
           />
         </View>
         <View className="w-full flex-row items-center justify-between">
@@ -54,11 +73,11 @@ export default function SignIn() {
         </View>
 
         {/* Sign In Button */}
-        <View className="w-full bg-gray-700 rounded-xl p-3">
+        <TouchableOpacity onPress={handleSignIn} className="w-full bg-gray-700 rounded-xl p-3">
           <Text className="text-white text-center text-lg font-semibold">
             Sign In
           </Text>
-        </View>
+        </TouchableOpacity>
 
         {/* Sign Up Prompt */}
         <View className="flex-row justify-center items-center w-full">

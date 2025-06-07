@@ -1,12 +1,32 @@
+import axios from "axios";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Checkbox } from 'react-native-paper';
 import GoogleLogo from "../../assets/Svg/GoogleLogo";
 
 export default function SignUp() {
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
+  const [user, setUser ] = useState({
+    username: "12345",
+    fullName: "",
+    password: "",
+    email: ""
+  });
   const router = useRouter();
+
+  const handleSignUp = async () => {
+    console.log("User data:", user);
+    
+    const response = await axios.post("http://192.168.0.100:3000/api/users/signup", user).then((res) => {
+        if(res.status === 201) {
+          console.log("User created successfully:", res.data);
+          router.push("/(auth)/signIn");
+        }
+    }).catch((err) => {
+      console.error("Error creating user:", err.response ? err.response.data : err.message);
+    });
+  };
 
   return (
     <View className="flex-1 flex-col justify-center items-center bg-gray-800 relative overflow-hidden">
@@ -25,17 +45,20 @@ export default function SignUp() {
             className="w-full p-3 px-5 h-[50px] border border-gray-200 rounded-md focus:border-blue-500 focus:border-2"
             placeholder="Full Name"
             placeholderTextColor="#9CA3AF"
+            onChangeText={(text) => setUser({ ...user, fullName: text })}
           />
           <TextInput
             className="w-full p-3 px-5 h-[50px] border border-gray-200 rounded-md focus:border-blue-500 focus:border-2"
             placeholder="Email Address"
             placeholderTextColor="#9CA3AF"
+            onChangeText={(text) => setUser({ ...user, email: text })}
           />
           <TextInput
             className="w-full p-3 px-5 h-[50px] border border-gray-200 rounded-md focus:border-blue-500 focus:border-2"
             placeholder="Create Password"
             secureTextEntry
             placeholderTextColor="#9CA3AF"
+            onChangeText={(text) => setUser({ ...user, password: text })}
           />
         </View>
 
@@ -64,13 +87,13 @@ export default function SignUp() {
     </View>
 
         {/* Sign Up Button */}
-        <View className="w-full bg-gray-700 rounded-xl p-3">
+        <TouchableOpacity className="w-full bg-gray-700 rounded-xl p-3" onPress={handleSignUp}>
           <Text className="text-white text-center text-lg font-semibold">
             Create Account
           </Text>
-        </View>
+        </TouchableOpacity>
 
-        {/* Sign In Prompt */}
+        {/* Sign In Prompt */}  
         <View className="flex-row justify-center items-center w-full">
           <Text className="text-gray-500">Already have an account? </Text>
           <Text
